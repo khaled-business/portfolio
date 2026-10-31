@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<!--
+  معرض أعمال التصميم / Design Portfolio
+  Version: 1.1.1
+  Changelog:
+    1.1.1 — إعادة صورة الهيرو كما هي بدون قص.
+    1.1.0 — نسخة إنجليزية (هي الافتراضية) مع زر تبديل للعربية؛ حذف عارض الـPDF والاسم؛ المطعم بعد القاموس في الأبرز.
+    1.0.0 — الإصدار الأول: واجهة على شكل قاموس، قسم "الأبرز"، أرشيف حسب السلاسل، عارض صور وعارض PDF.
+
+  طريقة الاستخدام:
+    ضع هذا الملف (index.html) بجانب مجلد "Design protoflio" ثم افتحه في المتصفح.
+    الصور غير مدمجة داخل الصفحة، تُحمَّل من المجلد مباشرة.
+    لإضافة عمل جديد أضف سطرًا واحدًا داخل المصفوفة WORKS في الأسفل.
+-->
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="portfolio-version" content="1.1.1">
+<meta name="theme-color" content="#131d44">
+<title>Design Portfolio</title>
+<meta name="description" content="Design portfolio: social media ads, books and covers, and greetings.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&family=Fraunces:wght@600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#1f3269;
+    --ink:#131d44;
+    --peach:#f4dfc8;
+    --paper-ink:#1b2550;
+    --coral:#ea5a4f;
+    --coral-text:#b8342b;
+    --gold:#f4a93c;
+    --sky:#6fb3dc;
+    --tabw:3.4rem;
+    --gutter:clamp(1.25rem,5vw,4.5rem);
+    --display:"Aref Ruqaa","Amiri","Traditional Arabic",serif;
+    --text:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;
+    color-scheme:dark;
+  }
+  *,*::before,*::after{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:1.5rem}
+  body{
+    margin:0;background:var(--ink);color:var(--peach);
+    font:400 1.0625rem/1.85 var(--text);
+    -webkit-font-smoothing:antialiased;
+  }
+  img{display:block;max-width:100%;height:auto}
+  button{font:inherit;color:inherit;cursor:pointer}
+  a{color:inherit}
+  h1,h2,h3,p,ol,ul,figure{margin:0}
+  ol,ul{padding:0;list-style:none}
+  :focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+  /* ───── تبويبات الحافة (مثل فهرس القاموس) ───── */
+  .tabs{
+    position:fixed;z-index:20;inset-inline-start:0;top:50%;transform:translateY(-50%);
+    display:flex;flex-direction:column;gap:.5rem;
+  }
+  .tabs a{
+    writing-mode:vertical-rl;text-decoration:none;font-weight:600;font-size:.95rem;
+    padding:1.1rem .7rem;border-radius:.9rem 0 0 .9rem;color:var(--ink);
+    transform:translateX(.55rem);transition:transform .25s ease,padding .25s ease;
+  }
+  .tabs a[data-c="coral"]{background:var(--coral)}
+  .tabs a[data-c="gold"]{background:var(--gold)}
+  .tabs a[data-c="sky"]{background:var(--sky)}
+  .tabs a[data-c="peach"]{background:var(--peach)}
+  .tabs a[aria-current="true"]{transform:translateX(0);padding-inline:1.1rem .95rem}
+
+  /* ───── عام ───── */
+  .wrap{padding-inline:var(--gutter);padding-inline-start:calc(var(--gutter) + var(--tabw))}
+  .h-display{font-family:var(--display);font-weight:700;line-height:1.15;letter-spacing:0}
+  .btn{
+    display:inline-flex;align-items:center;gap:.6rem;padding:.8rem 1.5rem;border-radius:.4rem;
+    font-weight:600;text-decoration:none;border:2px solid var(--peach);background:transparent;transition:background .2s,color .2s;
+  }
+  .btn--solid{background:var(--peach);color:var(--ink)}
+  .btn--solid:hover{background:var(--gold);border-color:var(--gold)}
+  .btn--line:hover{background:var(--peach);color:var(--ink)}
+  .frame{position:relative;display:block;padding:0;border:0;background:var(--navy);cursor:zoom-in;overflow:hidden;border-radius:3px}
+  .frame img{width:100%;height:auto;transition:transform .5s ease}
+  .frame:hover img{transform:scale(1.025)}
+  .frame:hover,.frame:focus-visible{outline:3px solid var(--coral);outline-offset:0}
+
+  /* ───── الرئيسية: مدخل قاموس ───── */
+  .hero{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,.7fr);min-height:100svh}
+  .hero__text{
+    padding-block:clamp(3rem,9vh,6rem);display:flex;flex-direction:column;justify-content:center;
+    padding-inline:var(--gutter);padding-inline-start:calc(var(--gutter) + var(--tabw));
+  }
+  .headword{display:flex;align-items:baseline;flex-wrap:wrap;gap:1rem 1.5rem}
+  .headword h1{font-size:clamp(5.5rem,16vw,12.5rem);color:var(--peach)}
+  .pos{color:var(--gold);font-size:1.25rem;font-weight:500}
+  .defs{margin-top:1.5rem;max-width:34rem;counter-reset:d}
+  .defs li{
+    counter-increment:d;position:relative;padding-inline-start:2.6rem;margin-bottom:.9rem;
+    font-size:clamp(1.1rem,1.6vw,1.3rem);line-height:1.8;
+  }
+  .defs li::before{
+    content:counter(d,arabic-indic) "،";position:absolute;inset-inline-start:0;top:0;
+    font-family:var(--display);font-weight:700;color:var(--gold);font-size:1.5rem;
+  }
+  .see{margin-top:1.6rem;display:flex;align-items:baseline;gap:.8rem;flex-wrap:wrap}
+  .see span{color:var(--gold);font-size:.95rem}
+  .see strong{font-family:var(--display);font-size:2rem;font-weight:700}
+  .see bdi{font-size:.95rem;font-weight:300;opacity:.8}
+  .hero__cta{margin-top:2.2rem;display:flex;gap:.9rem;flex-wrap:wrap}
+  .hero__art{position:relative;overflow:hidden;background:var(--navy)}
+  .hero__art img{width:100%;height:100%;object-fit:cover;object-position:left center}
+
+  /* حركة واحدة منسّقة عند فتح الصفحة */
+  @media (prefers-reduced-motion:no-preference){
+    .defs li,.see,.hero__cta{opacity:0;animation:rise .7s cubic-bezier(.2,.7,.2,1) forwards}
+    .defs li:nth-child(1){animation-delay:.25s}
+    .defs li:nth-child(2){animation-delay:.45s}
+    .defs li:nth-child(3){animation-delay:.65s}
+    .see{animation-delay:.9s}
+    .hero__cta{animation-delay:1.05s}
+    @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  }
+
+  /* ───── الأبرز ───── */
+  .featured{padding-block:clamp(4rem,9vw,8rem);background:var(--ink)}
+  .sec-head{max-width:40rem;margin-bottom:clamp(2rem,4vw,3.5rem)}
+  .sec-head h2{font-size:clamp(2.8rem,6vw,4.8rem)}
+  .sec-head p{margin-top:.6rem;opacity:.85}
+  .block{margin-top:clamp(3.5rem,8vw,7rem)}
+  .block:first-of-type{margin-top:0}
+
+  .book{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,8fr);gap:clamp(1.5rem,4vw,4rem);align-items:center}
+  .book__text h3{font-size:clamp(2.2rem,4vw,3.4rem)}
+  .book__text h3 bdi{font-family:var(--display)}
+  .book__text p{margin-top:1rem;max-width:30rem}
+  .book__text .book__sub{margin-top:.2rem;color:var(--gold);font-weight:600;font-size:1.15rem}
+  .book__cta{margin-top:1.6rem;display:flex;gap:.9rem;flex-wrap:wrap}
+  .book__media .frame{border-radius:6px}
+  .solo{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .solo .book__media{max-width:34rem}
+
+  .block__head{display:flex;align-items:baseline;gap:1rem 2rem;flex-wrap:wrap;margin-bottom:1.4rem}
+  .block__head h3{font-size:clamp(2rem,3.6vw,3rem)}
+  .block__head p{max-width:34rem;opacity:.85}
+
+  .trio{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.7rem}
+  .trio .frame:first-child{grid-column:span 2;grid-row:span 2}
+  .quad{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.7rem}
+
+  /* ───── الأعمال (أرشيف على ورق خوخي) ───── */
+  .works{background:var(--peach);color:var(--paper-ink);padding-block:clamp(4rem,9vw,8rem)}
+  .works .sec-head p{opacity:.8}
+  .entry{
+    display:grid;grid-template-columns:minmax(0,1fr) minmax(0,3.2fr);gap:clamp(1.2rem,3vw,3rem);
+    padding-block:clamp(1.8rem,4vw,3rem);border-top:2px solid var(--paper-ink);
+  }
+  .entry__head{align-self:start;position:sticky;top:1.5rem}
+  .entry__head h3{font-size:clamp(2rem,3.2vw,2.8rem);color:var(--paper-ink)}
+  .entry__head p{margin-top:.5rem;font-size:.98rem;line-height:1.7}
+  .entry__head .count{margin-top:.8rem;color:var(--coral-text);font-weight:600}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(clamp(140px,15vw,210px),1fr));gap:.6rem;align-content:start}
+  .works .frame:hover,.works .frame:focus-visible{outline-color:var(--coral-text)}
+
+  /* ───── تواصل ───── */
+  .contact{background:var(--navy);padding-block:clamp(4rem,8vw,6.5rem)}
+  .contact ul{display:flex;flex-wrap:wrap;gap:.9rem}
+  .foot{background:var(--ink);padding-block:1.6rem;font-size:.9rem;opacity:.85}
+  .foot .wrap{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+
+  /* ───── النوافذ: عارض الصور وعارض PDF ───── */
+  dialog{border:0;padding:0;color:#fff;max-width:none;max-height:none;width:100vw;height:100dvh;background:rgba(9,13,32,.96)}
+  dialog::backdrop{background:transparent}
+  dialog[open]{animation:fade .18s ease}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .lb{display:grid;grid-template-rows:1fr auto;height:100%;padding:1rem}
+  .lb__stage{display:flex;align-items:center;justify-content:center;gap:.5rem;min-height:0}
+  .lb__stage img{max-height:calc(100dvh - 8rem);max-width:min(100%,calc(100vw - 9rem));width:auto;object-fit:contain;border-radius:3px}
+  .lb__cap{text-align:center;padding-block:.8rem;font-size:.95rem}
+  .lb__cap b{color:var(--gold);font-weight:600;margin-inline-start:.6rem}
+  .ico{
+    flex:none;width:3rem;height:3rem;display:grid;place-items:center;border-radius:50%;
+    background:rgba(255,255,255,.1);border:0;transition:background .2s;
+  }
+  .ico:hover{background:var(--coral)}
+  .ico svg{width:1.4rem;height:1.4rem;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+  .lb__close{position:absolute;top:1rem;inset-inline-start:1rem}
+
+  /* ───── زر اللغة + الإنجليزية (LTR) ───── */
+  .lang{
+    position:fixed;z-index:25;top:1rem;inset-inline-end:1rem;padding:.45rem 1rem;border:0;border-radius:2rem;
+    background:var(--gold);color:var(--ink);font-weight:600;font-size:.95rem;line-height:1.6;
+  }
+  .lang:hover{background:var(--peach)}
+  html[lang=en]{--display:"Fraunces",Georgia,"Times New Roman",serif;--text:"IBM Plex Sans","Segoe UI",Arial,sans-serif}
+  html[lang=en] body{line-height:1.7}
+  html[lang=en] .headword h1{font-size:clamp(3.6rem,10.5vw,9rem);font-weight:700}
+  html[lang=en] .defs li::before{content:counter(d) ".";font-size:1.25rem}
+  html[lang=en] .h-display{line-height:1.1}
+  html[dir=ltr] .ico--prev svg,html[dir=ltr] .ico--next svg{transform:scaleX(-1)}
+  @media (min-width:721px){
+    html[dir=ltr] .tabs a{border-radius:0 .9rem .9rem 0;transform:translateX(-.55rem)}
+    html[dir=ltr] .tabs a[aria-current="true"]{transform:translateX(0)}
+  }
+
+  /* ───── شاشات أصغر ───── */
+  @media (max-width:900px){
+    .hero{grid-template-columns:1fr;min-height:0}
+    .hero__art{order:-1;height:64svh}
+    .hero__art img{object-position:left 30%}
+    .book{grid-template-columns:1fr}
+    .book__media{order:-1}
+    .entry{grid-template-columns:1fr}
+    .entry__head{position:static}
+    .quad{grid-template-columns:repeat(2,minmax(0,1fr))}
+  }
+  @media (max-width:720px){
+    :root{--tabw:0rem}
+    body{padding-bottom:3.6rem}
+    .tabs{
+      inset:auto 0 0 0;top:auto;transform:none;flex-direction:row;gap:2px;padding:0 .4rem;
+      background:var(--ink);
+    }
+    .tabs a{
+      writing-mode:horizontal-tb;flex:1;text-align:center;padding:.75rem .3rem;
+      border-radius:.7rem .7rem 0 0;transform:none;
+    }
+    .tabs a[aria-current="true"]{padding-inline:.3rem;box-shadow:inset 0 -4px 0 var(--ink)}
+    .lb__stage img{max-width:calc(100vw - 2rem)}
+    .lb__stage .ico{position:absolute;bottom:4.2rem;z-index:2}
+    .lb__stage .ico--prev{inset-inline-start:1rem}
+    .lb__stage .ico--next{inset-inline-end:1rem}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    .frame img,.tabs a{transition:none}
+    dialog[open]{animation:none}
+  }
+</style>
+</head>
+<body>
+
+<button class="lang" id="lang" type="button" lang="ar">العربية</button>
+
+<nav class="tabs" id="tabs" aria-label="Page sections">
+  <a href="#top" data-c="coral" data-i18n="tab_top">Home</a>
+  <a href="#featured" data-c="gold" data-i18n="tab_featured">Featured</a>
+  <a href="#works" data-c="sky" data-i18n="tab_works">Works</a>
+  <a href="#contact" data-c="peach" id="tab-contact" data-i18n="tab_contact" hidden>Contact</a>
+</nav>
+
+<main>
+  <!-- Home: a dictionary entry -->
+  <section class="hero" id="top">
+    <div class="hero__text">
+      <div class="headword">
+        <h1 class="h-display" data-i18n="headword">designer</h1>
+        <span class="pos"><span id="ipa" data-i18n="ipa">/dɪˈzaɪnər/</span> <span data-i18n="pos">(noun)</span></span>
+      </div>
+      <ol class="defs">
+        <li data-i18n="def1">One who turns an idea into an image that reads at first glance.</li>
+        <li data-i18n="def2">Makes social media ads for Snapchat, Instagram and TikTok, in one format with a steady identity.</li>
+        <li data-i18n="def3">Designs books and covers through to the last page, like a 100-page dictionary with a colour-coded index for every letter.</li>
+      </ol>
+      <div class="hero__cta">
+        <a class="btn btn--solid" href="#featured" data-i18n="cta_featured">See the featured work</a>
+        <a class="btn btn--line" href="#works" data-i18n="cta_works">All works</a>
+      </div>
+    </div>
+    <div class="hero__art"><img id="hero-img" alt="" width="3779" height="2480" fetchpriority="high"></div>
+  </section>
+
+  <!-- Featured -->
+  <section class="featured wrap" id="featured" aria-labelledby="f-title">
+    <div class="sec-head">
+      <h2 class="h-display" id="f-title" data-i18n="f_title">Featured</h2>
+      <p data-i18n="f_sub">The pieces that matter most.</p>
+    </div>
+    <div id="featured-body"></div>
+  </section>
+
+  <!-- Works -->
+  <section class="works wrap" id="works" aria-labelledby="w-title">
+    <div class="sec-head">
+      <h2 class="h-display" id="w-title" data-i18n="w_title">Works</h2>
+      <p data-i18n="w_sub">Each series is its own entry. Click any design to enlarge it, then move through the series with the arrows.</p>
+    </div>
+    <div id="works-body"></div>
+  </section>
+
+  <!-- Contact (appears only when CONFIG.contacts has a value) -->
+  <section class="contact wrap" id="contact" hidden aria-labelledby="c-title">
+    <div class="sec-head">
+      <h2 class="h-display" id="c-title" data-i18n="c_title">Contact</h2>
+      <p data-i18n="c_sub">Have an idea or a project? Get in touch.</p>
+    </div>
+    <ul id="contact-list"></ul>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© <span id="year"></span></span>
+    <span><span data-i18n="ver">Version</span> <bdi id="ver"></bdi></span>
+  </div>
+</footer>
+
+<noscript><p style="padding:2rem">JavaScript is needed to show the works. / يحتاج المعرض إلى تفعيل JavaScript.</p></noscript>
+
+<!-- Image viewer -->
+<dialog id="lb" aria-label="Image viewer">
+  <div class="lb">
+    <button class="ico lb__close" id="lb-close" aria-label="Close">
+      <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <div class="lb__stage">
+      <button class="ico ico--prev" id="lb-prev" aria-label="Previous"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+      <img id="lb-img" alt="">
+      <button class="ico ico--next" id="lb-next" aria-label="Next"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+    </div>
+    <p class="lb__cap"><span id="lb-alt"></span><b id="lb-count"></b></p>
+  </div>
+</dialog>
+
+<script>
+/* ════════════════════════════════════════════════
+   CONFIG — edit here only / الإعدادات
+   ════════════════════════════════════════════════ */
+const VERSION = "1.1.1";
+const DEFAULT_LANG = "en";          // English first. ?lang=ar or the toggle switches it.
+
+const CONFIG = {
+  folder: "Design protoflio",
+  cover:  "الغلاف.png",
+  // Leave empty to hide. Adding any one shows the Contact section automatically.
+  contacts: {
+    whatsapp:  "",   // e.g. "https://wa.me/20XXXXXXXXXX"
+    email:     "",   // e.g. "name@example.com"
+    behance:   "",   // e.g. "https://behance.net/yourname"
+    instagram: ""    // e.g. "https://instagram.com/yourname"
+  }
+};
+
+/* ───── Texts / النصوص ───── */
+const T = {
+  en: {
+    title:"Design Portfolio", metaDesc:"Design portfolio: social media ads, books and covers, and greetings.",
+    tab_top:"Home", tab_featured:"Featured", tab_works:"Works", tab_contact:"Contact",
+    headword:"designer", ipa:"/dɪˈzaɪnər/", pos:"(noun)",
+    def1:"One who turns an idea into an image that reads at first glance.",
+    def2:"Makes social media ads for Snapchat, Instagram and TikTok, in one format with a steady identity.",
+    def3:"Designs books and covers through to the last page, like a 100-page dictionary with a colour-coded index for every letter.",
+    cta_featured:"See the featured work", cta_works:"All works",
+    heroAlt:"Dictionary cover for Le Maître: the Eiffel Tower in watercolour on a navy background",
+    coverAlt:"Full cover of the Le Maître dictionary: back cover with the Eiffel Tower, the spine, and the front cover",
+    f_title:"Featured", f_sub:"The pieces that matter most.",
+    w_title:"Works", w_sub:"Each series is its own entry. Click any design to enlarge it, then move through the series with the arrows.",
+    c_title:"Contact", c_sub:"Have an idea or a project? Get in touch.",
+    ver:"Version", switch:"العربية",
+    prev:"Previous", next:"Next", close:"Close", viewer:"Image viewer", zoom:"Enlarge: ", nav:"Page sections",
+    book_sub:"French → Arabic dictionary",
+    book_p:"A pocket dictionary for secondary-school students, 100 pages long. Designed from cover to index, with every letter from A to Z given its own colour on the page edge so readers find what they need with a thumb.",
+    book_btn:"View the full cover",
+    food_t:"Restaurant ad",
+    food_p:"Crispy chicken and fries on deep red, set with a soft handwritten script.",
+    mal_t:"Malaysia packages", mal_p:"Three destinations, one template: price, length and each city's nights read in one glance.",
+    fri_t:"Blessed Friday", fri_p:"Four moments of prayer in different light, with the Arabic calligraphy carrying the greeting.",
+    contacts:{whatsapp:"WhatsApp", email:"Email", behance:"Behance", instagram:"Instagram"}
+  },
+  ar: {
+    title:"معرض أعمال التصميم", metaDesc:"معرض أعمال تصميم: إعلانات سوشيال ميديا، وكتب وأغلفة، ومعايدات.",
+    tab_top:"الرئيسية", tab_featured:"الأبرز", tab_works:"الأعمال", tab_contact:"تواصل",
+    headword:"مصمّم", ipa:"", pos:"(اسم)",
+    def1:"من يحوّل الفكرة إلى صورة تُفهم من النظرة الأولى.",
+    def2:"يصمّم إعلانات السوشيال ميديا لسناب وإنستغرام وتيك توك، بمقاس واحد وهوية ثابتة.",
+    def3:"يصمّم الكتب والأغلفة حتى آخر صفحة، مثل قاموس من ١٠٠ صفحة بفهرس ملوّن لكل حرف.",
+    cta_featured:"شاهد الأبرز", cta_works:"كل الأعمال",
+    heroAlt:"غلاف قاموس Le Maître: برج إيفل بالألوان المائية على خلفية كحلية",
+    coverAlt:"الغلاف الكامل لقاموس Le Maître: الواجهة الخلفية ببرج إيفل، والعمود، والواجهة الأمامية",
+    f_title:"الأبرز", f_sub:"الأعمال الأهم.",
+    w_title:"الأعمال", w_sub:"كل سلسلة هنا مدخل مستقل. اضغط على أي تصميم لتكبيره، وتنقّل بين تصاميم السلسلة بالأسهم.",
+    c_title:"تواصل", c_sub:"عندك فكرة أو مشروع؟ راسلني.",
+    ver:"النسخة", switch:"English",
+    prev:"السابق", next:"التالي", close:"إغلاق", viewer:"عارض الصور", zoom:"تكبير: ", nav:"أقسام الصفحة",
+    book_sub:"قاموس فرنسي ← عربي",
+    book_p:"قاموس مصغّر لطلاب المرحلة الثانوية، من ١٠٠ صفحة. صمّمته من الغلاف إلى الفهرس، وجعلت لكل حرف من A إلى Z لونه على حافة الصفحة ليجد القارئ مبتغاه بإبهامه.",
+    book_btn:"شاهد الغلاف كاملًا",
+    food_t:"إعلان مطعم",
+    food_p:"دجاج مقرمش وبطاطس على خلفية حمراء داكنة، بخط كتابة يدوي ناعم.",
+    mal_t:"باقات ماليزيا", mal_p:"ثلاث وجهات بقالب واحد: السعر والمدة وليالي كل مدينة تُقرأ في نظرة واحدة.",
+    fri_t:"جمعة مباركة", fri_p:"أربع لقطات للصلاة بإضاءات مختلفة، والخط العربي هو الذي يحمل التهنئة.",
+    contacts:{whatsapp:"واتساب", email:"البريد", behance:"Behance", instagram:"إنستغرام"}
+  }
+};
+
+/* ───── Series shown in "Works" (display order) / السلاسل ───── */
+const SETS = {
+  bali:     { t:{en:"Bali packages",     ar:"باقات بالي"},
+              g:{en:"Each package has its own photo and background colour; trip length and price always sit in the same place.",
+                 ar:"كل باقة لها صورتها ولون خلفيتها، ومدة الرحلة وسعرها في مكان ثابت."} },
+  hotels:   { t:{en:"Indonesia hotels",  ar:"فنادق إندونيسيا"},
+              g:{en:"A white frame and a name tag with the hotel and city, for hotels in Jakarta and Bali.",
+                 ar:"إطار أبيض وشريط باسم الفندق والمدينة، لفنادق جاكرتا وبالي."} },
+  langkawi: { t:{en:"Langkawi",          ar:"لنكاوي"},
+              g:{en:"An economy family programme in two versions, and a couples package.",
+                 ar:"برنامج عائلي اقتصادي بنسختين، وباقة للأزواج."} }
+};
+
+/* ════════════════════════════════════════════════
+   WORKS — one line per design: alt [ar, en]
+   src      path inside the folder
+   set      group used by the image viewer
+   group    (optional) series in "Works"; defaults to set
+   feature  (optional) "food" | "malaysia" | "friday" → shown in Featured
+   ════════════════════════════════════════════════ */
+const WORKS = [
+  // Bali
+  { src:"final jpg/3.jpg",   alt:["باقة بالي: ٧ أيام بسعر ٤٤٠٠ ريال، ومعبد بين الجبال","Bali package: 7 days, SAR 4400, a temple gate between mountains"], set:"bali" },
+  { src:"final jpg/3_2.jpg", alt:["باقة بالي: ٧ أيام بسعر ٥٠٠٠ ريال، ومنتجع بين الأشجار","Bali package: 7 days, SAR 5000, a resort among trees"], set:"bali" },
+  { src:"final jpg/3_3.jpg", alt:["باقة بالي: ٨ أيام بسعر ٤٧٠٠ ريال، ومعبد على خلفية خضراء","Bali package: 8 days, SAR 4700, a temple on green"], set:"bali" },
+  { src:"final jpg/3_4.jpg", alt:["باقة بالي: ٩ أيام بسعر ٤٩٩٩ ريالًا، ومعبد متعدد الأسقف","Bali package: 9 days, SAR 4999, a tiered temple"], set:"bali" },
+  { src:"final jpg/3_5.jpg", alt:["باقة بالي: ٩ أيام بسعر ٥٩٠٠ ريال، وبيت بالي تقليدي","Bali package: 9 days, SAR 5900, a traditional Balinese house"], set:"bali" },
+  { src:"final jpg/3_6.jpg", alt:["باقة بالي: ٨ أيام بسعر ٥٥٠٠ ريال، وجرف على البحر","Bali package: 8 days, SAR 5500, a cliff above the sea"], set:"bali" },
+
+  // Hotels
+  { src:"final jpg/4.jpg",   alt:["فندق في جاكرتا: غرفة نوم","Jakarta hotel: bedroom"], set:"hotels" },
+  { src:"final jpg/4_2.jpg", alt:["فندق في جاكرتا: المسبح","Jakarta hotel: the pool"], set:"hotels" },
+  { src:"final jpg/4_3.jpg", alt:["فندق في جاكرتا: شرفة المسبح","Jakarta hotel: the pool deck"], set:"hotels" },
+  { src:"final jpg/4_4.jpg", alt:["فيلا في بالي: غرفة النوم","Bali villa: bedroom"], set:"hotels" },
+  { src:"final jpg/4_5.jpg", alt:["فيلا في بالي: المسبح الداخلي","Bali villa: indoor pool"], set:"hotels" },
+  { src:"final jpg/4_6.jpg", alt:["فيلا في بالي: سرير الفيلا","Bali villa: the bed"], set:"hotels" },
+  { src:"final jpg/4_7.jpg", alt:["فندق في بالي: غرفة بسريرين","Bali hotel: twin room"], set:"hotels" },
+  { src:"final jpg/4_8.jpg", alt:["فندق في بالي: غرفة بسريرين ولوحة","Bali hotel: twin room with a painting"], set:"hotels" },
+  { src:"final jpg/4_9.jpg", alt:["فندق في بالي: المسبح والمظلات","Bali hotel: the pool and parasols"], set:"hotels" },
+
+  // Malaysia (featured)
+  { src:"final jpg/JPEG/5.jpg",   alt:["باقة لنكاوي: ١٠ أيام بسعر ٧٧٠٠ ريال، ونسر لنكاوي مع زوجين","Langkawi package: 10 days, SAR 7700, the Langkawi eagle with a couple"], set:"malaysia", feature:"malaysia" },
+  { src:"final jpg/JPEG/5_2.jpg", alt:["باقة كوالالمبور: ٨ أيام بسعر ٦٦٠٠ ريال، وبرجا بتروناس عند الغروب","Kuala Lumpur package: 8 days, SAR 6600, the Petronas Towers at sunset"], set:"malaysia", feature:"malaysia" },
+  { src:"final jpg/JPEG/5_3.jpg", alt:["باقة سيلانجور: ٧ أيام بسعر ٥٨٠٠ ريال، وكهوف باتو","Selangor package: 7 days, SAR 5800, the Batu Caves"], set:"malaysia", feature:"malaysia" },
+  { src:"final jpg/JPEG/5_4.jpg", alt:["باقة لنكاوي: ٩ أيام بسعر ٧٠٠٠ ريال، ونسر لنكاوي مع زوجين","Langkawi package: 9 days, SAR 7000, the Langkawi eagle with a couple"], set:"malaysia", group:"langkawi" },
+
+  // Langkawi programme
+  { src:"2_snapchat & insta & tiktok.jpg",   alt:["برنامج لنكاوي الاقتصادي لعائلة، ١٠ أيام: النسخة الأولى","Economy Langkawi family programme, 10 days: version one"], set:"langkawi" },
+  { src:"2_snapchat & insta & tiktok_2.jpg", alt:["برنامج لنكاوي الاقتصادي لعائلة، ١٠ أيام: النسخة الثانية","Economy Langkawi family programme, 10 days: version two"], set:"langkawi" },
+
+  // Friday (featured)
+  { src:"final jpg/JPEG/6.jpg",   alt:["جمعة مباركة: رجل يدعو في مسجد بضوء النافذة","Blessed Friday: a man praying in a mosque by window light"], set:"friday", feature:"friday" },
+  { src:"final jpg/JPEG/6_2.jpg", alt:["جمعة مباركة: رجل جالس للصلاة في محراب مضيء","Blessed Friday: a man seated in prayer in a lit prayer hall"], set:"friday", feature:"friday" },
+  { src:"final jpg/JPEG/6_3.jpg", alt:["جمعة مباركة: سجود في مسجد تحت أشعة الضوء","Blessed Friday: prostration in a mosque under beams of light"], set:"friday", feature:"friday" },
+  { src:"final jpg/JPEG/6_4.jpg", alt:["جمعة مباركة: ظل رجل في محراب يشتعل بالضوء","Blessed Friday: a man's silhouette against a glowing arch"], set:"friday", feature:"friday" },
+
+  // Restaurant (featured, right after the dictionary)
+  { src:"fried-final.jpg", alt:["إعلان مطعم: دجاج مقرمش وبطاطس وصلصة كاتشب","Restaurant ad: crispy chicken, fries and ketchup"], set:"food", feature:"food" }
+];
+
+/* ════════════════════════════════════════════════
+   Code — no edits needed
+   ════════════════════════════════════════════════ */
+(() => {
+  const $ = (s, r = document) => r.querySelector(s);
+  const url = p => encodeURI(`${CONFIG.folder}/${p}`);
+  const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html) e.innerHTML = html; return e; };
+
+  let lang = DEFAULT_LANG;
+  try {
+    const q = new URLSearchParams(location.search).get("lang");
+    lang = q || localStorage.getItem("lang") || DEFAULT_LANG;
+  } catch (e) {}
+  if (!T[lang]) lang = DEFAULT_LANG;
+
+  const L = () => (lang === "ar" ? 0 : 1);               // index into alt pairs
+  const tr = () => T[lang];
+  const digits = n => n.toLocaleString(lang === "ar" ? "ar-EG" : "en");
+  const countLabel = n => lang === "ar"
+    ? (n === 1 ? "تصميم واحد" : n === 2 ? "تصميمان" : `${digits(n)} ${n <= 10 ? "تصاميم" : "تصميمًا"}`)
+    : `${n} ${n === 1 ? "design" : "designs"}`;
+
+  let sets = {};
+  const buildSets = () => {
+    sets = {};
+    WORKS.forEach(w => { (sets[w.set] ||= []).push({ src: url(w.src), alt: w.alt[L()] }); });
+    sets.book = [{ src: url(CONFIG.cover), alt: tr().coverAlt }];
+  };
+  const idxOf = w => sets[w.set].findIndex(x => x.src === url(w.src));
+
+  const frame = (item, setId, idx, eager) => {
+    const b = el("button", "frame");
+    b.type = "button";
+    b.setAttribute("aria-label", tr().zoom + item.alt);
+    b.innerHTML = `<img src="${item.src}" alt="" width="1080" height="1080" decoding="async" ${eager ? "" : 'loading="lazy"'}>`;
+    b.addEventListener("click", () => openLB(setId, idx));
+    return b;
+  };
+
+  /* Static texts, direction, language button */
+  function applyStatic() {
+    const t = tr(), h = document.documentElement;
+    h.lang = lang; h.dir = lang === "ar" ? "rtl" : "ltr";
+    document.title = t.title;
+    $('meta[name="description"]').content = t.metaDesc;
+    document.querySelectorAll("[data-i18n]").forEach(n => { n.textContent = t[n.dataset.i18n]; });
+    $("#ipa").hidden = !t.ipa;
+    $("#hero-img").alt = t.heroAlt;
+    const sw = $("#lang"); sw.textContent = t.switch; sw.lang = lang === "ar" ? "en" : "ar";
+    $("#tabs").setAttribute("aria-label", t.nav);
+    $("#lb").setAttribute("aria-label", t.viewer);
+    $("#lb-close").setAttribute("aria-label", t.close);
+    $("#lb-prev").setAttribute("aria-label", t.prev);
+    $("#lb-next").setAttribute("aria-label", t.next);
+    $("#year").textContent = new Date().getFullYear().toLocaleString(lang === "ar" ? "ar-EG" : "en", { useGrouping: false });
+    $("#ver").textContent = VERSION;
+  }
+
+  /* Dynamic content */
+  function build() {
+    buildSets();
+    const t = tr();
+    const fb = $("#featured-body"); fb.innerHTML = "";
+
+    // 1) Dictionary
+    const book = el("article", "block book");
+    const bookMedia = el("div", "book__media");
+    bookMedia.append(frame({ src: url(CONFIG.cover), alt: t.coverAlt }, "book", 0, true));
+    const bookText = el("div", "book__text", `
+      <h3 class="h-display"><bdi>Le Maître</bdi></h3>
+      <p class="book__sub">${t.book_sub}</p>
+      <p>${t.book_p}</p>
+      <div class="book__cta"><button class="btn btn--solid" type="button" id="book-btn">${t.book_btn}</button></div>`);
+    book.append(bookText, bookMedia);
+    fb.append(book);
+    $("#book-btn").addEventListener("click", () => openLB("book", 0));
+
+    // 2) Restaurant, right after the dictionary
+    const food = WORKS.find(w => w.feature === "food");
+    if (food) {
+      const f = el("article", "block book solo");
+      const fm = el("div", "book__media");
+      fm.append(frame({ src: url(food.src), alt: food.alt[L()] }, food.set, idxOf(food), true));
+      f.append(el("div", "book__text", `<h3 class="h-display">${t.food_t}</h3><p>${t.food_p}</p>`), fm);
+      fb.append(f);
+    }
+
+    // 3) Malaysia
+    const mBlock = el("article", "block");
+    mBlock.append(el("div", "block__head", `<h3 class="h-display">${t.mal_t}</h3><p>${t.mal_p}</p>`));
+    const trio = el("div", "trio");
+    WORKS.filter(w => w.feature === "malaysia").forEach(w => trio.append(frame({ src: url(w.src), alt: w.alt[L()] }, w.set, idxOf(w), true)));
+    mBlock.append(trio); fb.append(mBlock);
+
+    // 4) Friday
+    const fBlock = el("article", "block");
+    fBlock.append(el("div", "block__head", `<h3 class="h-display">${t.fri_t}</h3><p>${t.fri_p}</p>`));
+    const quad = el("div", "quad");
+    WORKS.filter(w => w.feature === "friday").forEach(w => quad.append(frame({ src: url(w.src), alt: w.alt[L()] }, w.set, idxOf(w), false)));
+    fBlock.append(quad); fb.append(fBlock);
+
+    // Works archive
+    const groups = {};
+    WORKS.filter(w => !w.feature).forEach(w => { (groups[w.group || w.set] ||= []).push(w); });
+    const wb = $("#works-body"); wb.innerHTML = "";
+    Object.keys(SETS).forEach(key => {
+      const list = groups[key]; if (!list || !list.length) return;
+      const m = SETS[key];
+      const entry = el("article", "entry");
+      entry.append(el("header", "entry__head", `<h3 class="h-display">${m.t[lang]}</h3><p>${m.g[lang]}</p><p class="count">${countLabel(list.length)}</p>`));
+      const grid = el("div", "grid");
+      list.forEach(w => grid.append(frame({ src: url(w.src), alt: w.alt[L()] }, w.set, idxOf(w), false)));
+      entry.append(grid); wb.append(entry);
+    });
+
+    // Contact
+    const C = CONFIG.contacts, names = t.contacts, links = [];
+    if (C.whatsapp)  links.push([names.whatsapp, C.whatsapp]);
+    if (C.email)     links.push([names.email, `mailto:${C.email}`]);
+    if (C.behance)   links.push([names.behance, C.behance]);
+    if (C.instagram) links.push([names.instagram, C.instagram]);
+    const ul = $("#contact-list"); ul.innerHTML = "";
+    $("#contact").hidden = !links.length;
+    $("#tab-contact").hidden = !links.length;
+    links.forEach(([n, h]) => ul.append(el("li", "", `<a class="btn btn--solid" href="${h}" target="_blank" rel="noopener">${n}</a>`)));
+  }
+
+  /* Image viewer */
+  const lb = $("#lb"), lbImg = $("#lb-img");
+  let cur = [], pos = 0;
+  function show() {
+    const it = cur[pos];
+    lbImg.src = it.src; lbImg.alt = it.alt;
+    $("#lb-alt").textContent = it.alt;
+    $("#lb-count").textContent = cur.length > 1 ? `${digits(pos + 1)} / ${digits(cur.length)}` : "";
+    const single = cur.length < 2;
+    $("#lb-prev").hidden = single; $("#lb-next").hidden = single;
+    [-1, 1].forEach(d => { if (cur.length > 1) new Image().src = cur[(pos + d + cur.length) % cur.length].src; });
+  }
+  function openLB(setId, i) { cur = sets[setId]; pos = i; show(); if (!lb.open) lb.showModal(); }
+  const step = d => { if (cur.length > 1) { pos = (pos + d + cur.length) % cur.length; show(); } };
+  $("#lb-prev").addEventListener("click", () => step(-1));
+  $("#lb-next").addEventListener("click", () => step(1));
+  $("#lb-close").addEventListener("click", () => lb.close());
+  lb.addEventListener("click", e => { if (e.target === lb || e.target.classList.contains("lb__stage")) lb.close(); });
+  lb.addEventListener("keydown", e => {
+    const rtl = lang === "ar";                      // visual right = next in LTR, visual left = next in RTL
+    if (e.key === "ArrowLeft")  step(rtl ? 1 : -1);
+    if (e.key === "ArrowRight") step(rtl ? -1 : 1);
+  });
+  let tx = null;
+  lb.addEventListener("touchstart", e => { tx = e.changedTouches[0].clientX; }, { passive: true });
+  lb.addEventListener("touchend", e => {
+    if (tx === null) return;
+    const dx = e.changedTouches[0].clientX - tx; tx = null;
+    if (Math.abs(dx) > 50) step((dx < 0) === (lang !== "ar") ? 1 : -1);
+  });
+
+  /* Language toggle */
+  $("#lang").addEventListener("click", () => {
+    lang = lang === "ar" ? "en" : "ar";
+    try { localStorage.setItem("lang", lang); } catch (e) {}
+    if (lb.open) lb.close();
+    applyStatic(); build();
+  });
+
+  /* Active tab */
+  const tabs = [...document.querySelectorAll("#tabs a")];
+  const map = new Map(tabs.map(a => [a.getAttribute("href").slice(1), a]));
+  const mark = id => tabs.forEach(a => a.setAttribute("aria-current", map.get(id) === a ? "true" : "false"));
+  $("#hero-img").src = url(CONFIG.cover);
+  applyStatic(); build(); mark("top");
+  const io = new IntersectionObserver(es => { es.forEach(e => { if (e.isIntersecting) mark(e.target.id); }); }, { rootMargin: "-45% 0px -50% 0px" });
+  ["top", "featured", "works", "contact"].forEach(id => io.observe(document.getElementById(id)));
+
+  console.info(`Portfolio v${VERSION} (${lang})`);
+})();
+</script>
+</body>
+</html>
