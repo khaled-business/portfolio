@@ -17,7 +17,8 @@
 - **Malaysia packages**: three destinations in one template, so the price, length and itinerary read in a glance.
 - **Blessed Friday**: a series of greeting posts built on light and Arabic lettering.
 
-The full collection is organised by series on the site: Bali packages, hotel promotions, Langkawi offers, and more. Click any design to view it larger.
+The full collection is organised by series on the site: Bali packages, hotel promotions, Langkawi offers, and more.
+Click any design to view it larger.
 
 ## Languages
 
